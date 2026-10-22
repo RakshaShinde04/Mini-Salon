@@ -18,6 +18,7 @@ import {
   TrendingUp,
   DollarSign,
   ChevronDown,
+  LogOut,
 } from 'lucide-react';
 
 interface Booking {
@@ -40,9 +41,13 @@ interface Service {
 
 interface AdminDashboardProps {
   onOpenBillingForBooking?: (booking: Booking) => void;
+  onLogout?: () => void;
 }
 
-export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onOpenBillingForBooking }) => {
+export const AdminDashboard: React.FC<AdminDashboardProps> = ({
+  onOpenBillingForBooking,
+  onLogout,
+}) => {
   const [todayStr, setTodayStr] = useState<string>('2026-10-21');
   const [selectedDate, setSelectedDate] = useState<string>('2026-10-21');
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -246,6 +251,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onOpenBillingFor
               Day Timeline View
             </button>
           </div>
+
+          {onLogout && (
+            <button
+              id="btn-admin-logout"
+              onClick={onLogout}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/30 hover:bg-rose-500/20 transition-all cursor-pointer"
+              title="Log out of Admin Portal"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              Logout
+            </button>
+          )}
         </div>
       </div>
 

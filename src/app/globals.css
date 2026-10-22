@@ -1,76 +1,87 @@
 @import "tailwindcss";
 
 :root {
-  --background: #090d16;
-  --foreground: #f8fafc;
-  --gold-primary: #eab308;
-  --gold-accent: #f59e0b;
-  --gold-light: #fef08a;
-  --card-bg: rgba(17, 24, 39, 0.75);
-  --card-border: rgba(234, 179, 8, 0.15);
+  --background: #F8F3ED;
+  --foreground: #1A1412;
+  --card-bg: #FFFFFF;
+  --blush-pink: #E892A2;
+  --blush-dark: #D4708A;
+  --blush-light: #FDECEF;
+  --espresso: #1A1412;
+  --espresso-light: #2E2522;
+  --nude-sand: #F3EBE3;
+  --nude-border: #E8DDD4;
 }
 
 body {
   background-color: var(--background);
   color: var(--foreground);
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   min-height: 100vh;
   overflow-x: hidden;
 }
 
-/* Glassmorphism utility */
-.glass-panel {
-  background: rgba(15, 23, 42, 0.75);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+/* Custom Editorial Fonts & Styling */
+.font-editorial {
+  font-family: 'Playfair Display', Didot, 'Bodoni MT', 'Cinzel', Georgia, serif;
 }
 
-.glass-panel-gold {
-  background: rgba(23, 23, 37, 0.85);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(234, 179, 8, 0.25);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+.text-blush {
+  color: var(--blush-pink);
 }
 
-/* Gold Gradient text */
-.text-gold-gradient {
-  background: linear-gradient(135deg, #fef08a 0%, #eab308 50%, #ca8a04 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+.bg-blush {
+  background-color: var(--blush-pink);
+}
+
+.bg-blush-light {
+  background-color: var(--blush-light);
+}
+
+.bg-nude-sand {
+  background-color: var(--nude-sand);
+}
+
+.border-nude {
+  border-color: var(--nude-border);
+}
+
+.bg-espresso {
+  background-color: var(--espresso);
+}
+
+.text-espresso {
+  color: var(--espresso);
+}
+
+/* Circular Rotating Badge Animation */
+@keyframes spinSlow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spinSlow 16s linear infinite;
 }
 
 /* Custom Scrollbars */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
 }
 ::-webkit-scrollbar-track {
-  background: #0b1120;
+  background: #F3EBE3;
 }
 ::-webkit-scrollbar-thumb {
-  background: #334155;
+  background: #D4BDB4;
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #eab308;
-}
-
-/* Pulse animation for chat indicator */
-@keyframes goldPulse {
-  0%, 100% {
-    transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(234, 179, 8, 0.7);
-  }
-  50% {
-    transform: scale(1.05);
-    box-shadow: 0 0 0 10px rgba(234, 179, 8, 0);
-  }
-}
-
-.gold-pulse {
-  animation: goldPulse 2.5s infinite;
+  background: #E892A2;
 }
 
 /* Print Stylesheet for Invoices */
@@ -79,20 +90,10 @@ body {
     background: white !important;
     color: black !important;
   }
-  .no-print, header, nav, #chatbot-widget, footer {
+  .no-print, header, nav, #chatbot-widget, footer, .hero-section {
     display: none !important;
   }
   .print-only {
     display: block !important;
-  }
-  .print-invoice-area {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    margin: 0;
-    padding: 24px;
-    background: white !important;
-    color: black !important;
   }
 }
