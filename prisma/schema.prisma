@@ -1,0 +1,32 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Service {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  price     Float
+  duration  Int      // in minutes
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("services")
+}
+
+model Booking {
+  id           String   @id @default(cuid())
+  customerName String   @map("customer_name")
+  phone        String
+  service      String
+  date         String   // YYYY-MM-DD
+  time         String   // HH:mm format, e.g. "10:00"
+  status       String   @default("Pending") // "Pending", "Confirmed", "Done", "Cancelled"
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@unique([date, time])
+  @@map("bookings")
+}
