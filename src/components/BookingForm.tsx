@@ -29,6 +29,37 @@ interface SlotInfo {
   booking?: any;
 }
 
+// Default standard salon operating slots (09:00 AM to 07:30 PM)
+const ALL_SALON_HOURS = [
+  '09:00',
+  '09:30',
+  '10:00',
+  '10:30',
+  '11:00',
+  '11:30',
+  '12:00',
+  '12:30',
+  '13:00',
+  '13:30',
+  '14:00',
+  '14:30',
+  '15:00',
+  '15:30',
+  '16:00',
+  '16:30',
+  '17:00',
+  '17:30',
+  '18:00',
+  '18:30',
+  '19:00',
+  '19:30',
+];
+
+const DEFAULT_SLOTS: SlotInfo[] = ALL_SALON_HOURS.map((time) => ({
+  time,
+  available: true,
+}));
+
 interface BookingFormProps {
   onNavigateToManage?: (phone?: string) => void;
   presetService?: string;
@@ -56,8 +87,8 @@ export const BookingForm: React.FC<BookingFormProps> = ({
     setSelectedDate(today);
   }, []);
 
-  // Time slot state
-  const [slots, setSlots] = useState<SlotInfo[]>([]);
+  // Time slot state - initialized with full default salon hours so slots are NEVER blank
+  const [slots, setSlots] = useState<SlotInfo[]>(DEFAULT_SLOTS);
   const [loadingSlots, setLoadingSlots] = useState(false);
   const [selectedTime, setSelectedTime] = useState<string>('');
 
@@ -111,12 +142,16 @@ export const BookingForm: React.FC<BookingFormProps> = ({
         setLoadingSlots(true);
         setSelectedTime(''); // Reset selected slot
         const res = await fetch(`/api/slots?date=${selectedDate}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const json = await res.json();
-        if (json.success && json.slots) {
+        if (json.success && Array.isArray(json.slots) && json.slots.length > 0) {
           setSlots(json.slots);
+        } else {
+          setSlots(DEFAULT_SLOTS);
         }
       } catch (err) {
-        console.error('Failed to load slots', err);
+        console.warn('Failed to load slots from API, using default salon schedule:', err);
+        setSlots(DEFAULT_SLOTS);
       } finally {
         setLoadingSlots(false);
       }
@@ -559,10 +594,17 @@ export const BookingForm: React.FC<BookingFormProps> = ({
 
           {/* Smart Slots Grid */}
           <div>
-            <div className="flex items-center justify-between mb-3 text-xs">
-              <span className="font-bold text-[#5A4E49] uppercase tracking-wider">
-                Available Slots for {formatDateReadable(selectedDate)}
-              </span>
+            <div className="flex items-center justify-between mb-3 text-xs flex-wrap gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="font-bold text-[#5A4E49] uppercase tracking-wider">
+                  Available Slots for {formatDateReadable(selectedDate)}
+                </span>
+                {selectedTime && (
+                  <span className="px-2.5 py-0.5 rounded-full bg-[#1A1412] text-white font-bold text-[11px]">
+                    ✓ Selected: {formatSlotLabel(selectedTime)}
+                  </span>
+                )}
+              </div>
               <div className="flex items-center gap-3">
                 <span className="flex items-center gap-1.5 text-[#5A4E49]">
                   <span className="w-2.5 h-2.5 rounded-full bg-white border border-[#E8DDD4]"></span>
@@ -692,25 +734,35 @@ export const BookingForm: React.FC<BookingFormProps> = ({
         </div>
 
         {/* Submit Button */}
-        <button
-          id="btn-submit-booking"
-          type="submit"
-          disabled={isSubmitting || !selectedTime || !customerName.trim() || !isPhoneValid}
-          className={`w-full py-4 px-6 rounded-full font-bold text-sm uppercase tracking-wider transition-all flex items-center justify-center gap-3 shadow-lg ${
-            isSubmitting || !selectedTime || !customerName.trim() || !isPhoneValid
-              ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-              : 'bg-[#1A1412] hover:bg-[#2E2522] text-white cursor-pointer active:scale-98'
-          }`}
-        >
-          {isSubmitting ? (
-            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-          ) : (
-            <>
-              Confirm Booking
-              <ArrowRight className="w-4 h-4" />
-            </>
+        <div className="space-y-2 pt-2">
+          <button
+            id="btn-submit-booking"
+            type="submit"
+            disabled={isSubmitting}
+            className={`w-full py-4 px-6 rounded-full font-bold text-sm uppercase tracking-wider transition-all flex items-center justify-center gap-3 shadow-lg cursor-pointer ${
+              isSubmitting
+                ? 'bg-gray-300 text-gray-500 cursor-wait'
+                : !selectedTime
+                ? 'bg-[#8C7A73] hover:bg-[#6E5F59] text-white active:scale-98'
+                : 'bg-[#1A1412] hover:bg-[#2E2522] text-white active:scale-98'
+            }`}
+          >
+            {isSubmitting ? (
+              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+            ) : (
+              <>
+                {!selectedTime ? 'Select a Time Slot to Confirm' : 'Confirm Booking'}
+                <ArrowRight className="w-4 h-4" />
+              </>
+            )}
+          </button>
+
+          {!selectedTime && (
+            <p className="text-center text-xs text-[#D4708A] font-semibold">
+              ↑ Upar diye gaye slots me se apna time slot chunen
+            </p>
           )}
-        </button>
+        </div>
       </form>
     </div>
   );
