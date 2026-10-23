@@ -1,4 +1,6 @@
 import { createClient, Client } from '@libsql/client';
+import fs from 'fs';
+import path from 'path';
 
 export interface Service {
   id: number;
@@ -23,8 +25,33 @@ let initialized = false;
 
 export function getDb(): Client {
   if (!dbInstance) {
-    const url = process.env.DATABASE_URL || 'file:./dev.db';
-    dbInstance = createClient({ url });
+    let rawUrl = process.env.DATABASE_URL?.trim() || 'file:./dev.db';
+    // Automatically sanitize and strip accidental notes like '(ya Turso cloud URL)'
+    rawUrl = rawUrl.replace(/\s*\(.*?\)/g, '').trim();
+    if (!rawUrl) rawUrl = 'file:./dev.db';
+
+    // On Vercel serverless, root directory is read-only.
+    // If using a local file, mirror it to /tmp so bookings (writes) succeed without permission errors.
+    if (process.env.VERCEL && rawUrl.startsWith('file:')) {
+      try {
+        const tmpDb = '/tmp/dev.db';
+        if (!fs.existsSync(tmpDb)) {
+          const rootDb = path.join(process.cwd(), 'dev.db');
+          if (fs.existsSync(rootDb)) {
+            fs.copyFileSync(rootDb, tmpDb);
+          }
+        }
+        rawUrl = `file:${tmpDb}`;
+      } catch (err) {
+        console.warn('Notice: Could not mirror database to /tmp on Vercel:', err);
+      }
+    }
+
+    const authToken = process.env.TURSO_AUTH_TOKEN || process.env.DATABASE_AUTH_TOKEN;
+    dbInstance = createClient({
+      url: rawUrl,
+      authToken: authToken ? authToken.trim() : undefined,
+    });
   }
   return dbInstance;
 }
